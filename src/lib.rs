@@ -10,13 +10,13 @@ pub struct GameState {
 }
 
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
-pub struct StarId(u32);
+pub struct StarId(pub u32);
 
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
-pub struct PlayerId(u32);
+pub struct PlayerId(pub u32);
 
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
-pub struct CarrierId(u32);
+pub struct CarrierId(pub u32);
 
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
 pub struct Player {
@@ -34,6 +34,7 @@ pub struct Star {
     pub id: StarId,
     pub owned_by: PlayerId,
     pub location: (i16, i16),
+    pub size: u8,
     pub economy: u8,
     pub infrastructure: u8,
     pub science: u8,
@@ -68,6 +69,15 @@ pub struct Carrier {
 }
 
 impl GameState {
+    pub fn new() -> GameState {
+        GameState {
+            stars: HashMap::new(),
+            ships: Vec::new(),
+            carriers: HashMap::new(),
+            players: HashMap::new(),
+        }
+    }
+
     pub fn carrier(&self, id: CarrierId) -> Result<&Carrier, String> {
         match self.carriers.get(&id) {
             None => Err(format!(r#"no ship with id "{:?}""#, id)),

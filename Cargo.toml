@@ -9,4 +9,7 @@ path = "./src/gui.rs"
 
 
 [dependencies]
-lux = "*"
+lux = "0.1.0"
+palette = "0.2.1"
+rand = "0.3.14"
+clamp = "0.1.0"
