@@ -1,0 +1,12 @@
+[package]
+name = "trident"
+version = "0.1.0"
+authors = ["Ty Overby <ty@pre-alpha.com>"]
+
+[[bin]]
+name = "gui"
+path = "./src/gui.rs"
+
+
+[dependencies]
+lux = "*"
