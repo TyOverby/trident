@@ -4,15 +4,26 @@ extern crate palette;
 extern crate rand;
 extern crate clamp;
 
+mod ui;
+
 use lux::prelude::*;
 use lux::game::*;
 use rand::random;
 use trident::*;
+use lux::interactive::keycodes::VirtualKeyCode;
+use std::collections::HashMap;
 
 struct GameWindow {
+    keybindings: ui::KeyBindings,
     scale_factor: f32,
     state: GameState,
+    camera_pos: (f32, f32),
     player_colors: Vec<(f32, f32, f32, f32)>
+}
+
+enum GuiState {
+    StarSelected(StarId),
+    CarrierSelected(CarrierId),
 }
 
 fn random_colors(n: usize) -> Vec<(f32, f32, f32, f32)> {
@@ -40,6 +51,9 @@ impl Game for GameWindow {
     fn show_fps(&self, _: &Window) -> bool { false }
 
     fn render(&mut self, dt: f32, window: &mut Window, frame: &mut Frame) -> LuxResult<()> {
+        frame.translate(self.camera_pos.0, self.camera_pos.1);
+        frame.scale(self.scale_factor, self.scale_factor);
+
         fn pos_mod(xy: f32, size: f32) -> f32 {
             xy - size / 2.0
         }
@@ -63,7 +77,16 @@ impl Game for GameWindow {
 
         Ok(())
     }
+
     fn update(&mut self, dt: f32, window: &mut Window, events: &mut EventIterator) -> LuxResult<()>{
+        ui::update_camera(&mut self.camera_pos, &mut self.scale_factor, window, &self.keybindings);
+
+        for event in events {
+            match event {
+                _ => {}
+            }
+        }
+
         Ok(())
     }
 }
@@ -89,9 +112,14 @@ fn main() {
     }
     let mut colors = random_colors(state.stars.len());
 
+    let mut bindings = HashMap::new();
+    bindings.insert(ui::Action::CameraUp, vec![VirtualKeyCode::W]);
+
     let game = GameWindow {
-        scale_factor: 100.0,
+        keybindings: bindings,
+        scale_factor: 1.0,
         state: state,
+        camera_pos: (0.0, 0.0),
         player_colors: colors,
     };
 
