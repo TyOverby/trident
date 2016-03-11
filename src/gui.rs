@@ -51,8 +51,9 @@ impl Game for GameWindow {
     fn show_fps(&self, _: &Window) -> bool { false }
 
     fn render(&mut self, dt: f32, window: &mut Window, frame: &mut Frame) -> LuxResult<()> {
-        frame.translate(self.camera_pos.0, self.camera_pos.1);
+        frame.translate(window.width() / 2.0, window.height() / 2.0);
         frame.scale(self.scale_factor, self.scale_factor);
+        frame.translate(-self.camera_pos.0, -self.camera_pos.1);
 
         fn pos_mod(xy: f32, size: f32) -> f32 {
             xy - size / 2.0
@@ -62,7 +63,7 @@ impl Game for GameWindow {
             let color = self.player_colors.get(star.owned_by.0 as usize).cloned().unwrap();
             let color_outline = (color.0, color.1, color.2, 0.1);
             let size = star.size as f32 * 1.0;
-            let outline = 10.0;
+            let outline = 30.0 / self.scale_factor;
 
             frame.circle(pos_mod(star.location.0 as f32, size + outline),
                          pos_mod(star.location.1 as f32, size + outline), size + outline)
@@ -98,8 +99,8 @@ fn main() {
     let mut random = rand::thread_rng();
 
     for i in 0 .. 5 {
-        let x = random.gen_range(0, 1000);
-        let y = random.gen_range(0, 1000);
+        let x = random.gen_range(-500, 500);
+        let y = random.gen_range(-500, 500);
         state.stars.insert(StarId(i), Star {
             id: StarId(i),
             owned_by: PlayerId(i),
@@ -113,7 +114,11 @@ fn main() {
     let mut colors = random_colors(state.stars.len());
 
     let mut bindings = HashMap::new();
-    bindings.insert(ui::Action::CameraUp, vec![VirtualKeyCode::W]);
+    bindings.insert(ui::Action::CameraUp, vec![VirtualKeyCode::W, VirtualKeyCode::Up, VirtualKeyCode::K]);
+    bindings.insert(ui::Action::CameraDown, vec![VirtualKeyCode::S, VirtualKeyCode::Down, VirtualKeyCode::J]);
+    bindings.insert(ui::Action::CameraLeft, vec![VirtualKeyCode::A, VirtualKeyCode::Left, VirtualKeyCode::H]);
+    bindings.insert(ui::Action::CameraRight, vec![VirtualKeyCode::D, VirtualKeyCode::Right, VirtualKeyCode::L]);
+    bindings.insert(ui::Action::CameraZoomModifier, vec![VirtualKeyCode::LShift, VirtualKeyCode::RShift]);
 
     let game = GameWindow {
         keybindings: bindings,

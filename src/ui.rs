@@ -12,8 +12,7 @@ pub enum Action {
     CameraDown,
     CameraLeft,
     CameraRight,
-    CameraZoomIn,
-    CameraZoomOut,
+    CameraZoomModifier,
 }
 
 pub fn update_camera(position: &mut (f32, f32), scale: &mut f32, window: &Window, bindings: &KeyBindings) {
@@ -24,26 +23,36 @@ pub fn update_camera(position: &mut (f32, f32), scale: &mut f32, window: &Window
                     return true;
                 }
             }
-            return false;
+            false
         } else {
             panic!("no keybindings for {:?}", action);
         }
     }
+    let mut did_scale = false;
 
-
-    if is_any_down(Action::CameraUp, bindings, window) {
-        position.1 += 15.0;
+    if is_any_down(Action::CameraZoomModifier, bindings, window) && is_any_down(Action::CameraUp, bindings, window) {
+        *scale *= 1.0 + 0.01;
+        did_scale = true;
     }
 
-    if is_any_down(Action::CameraDown, bindings, window) {
-        position.1 -= 15.0;
+    if is_any_down(Action::CameraZoomModifier, bindings, window) && is_any_down(Action::CameraDown, bindings, window) {
+        *scale *= 1.0 - 0.01;
+        did_scale = true;
     }
 
-    if is_any_down(Action::CameraRight, bindings, window) {
-        position.0 -= 15.0;
+    if !did_scale && is_any_down(Action::CameraUp, bindings, window) {
+        position.1 -= 15.0 / *scale;
     }
 
-    if is_any_down(Action::CameraLeft, bindings, window) {
-        position.0 += 15.0;
+    if !did_scale && is_any_down(Action::CameraDown, bindings, window) {
+        position.1 += 15.0 / *scale;
+    }
+
+    if !did_scale && is_any_down(Action::CameraRight, bindings, window) {
+        position.0 += 15.0 / *scale;
+    }
+
+    if !did_scale && is_any_down(Action::CameraLeft, bindings, window) {
+        position.0 -= 15.0 / *scale;
     }
 }
